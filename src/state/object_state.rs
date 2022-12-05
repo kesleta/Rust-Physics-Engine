@@ -1,10 +1,10 @@
 use std::ops::{Add, Mul};
 
-use crate::V2;
+use crate::{Scalar, V2};
 
 use super::State;
 
-#[derive(Clone, Copy)]
+#[derive(Clone, Copy, Debug)]
 pub struct ObjectState {
     pub position: V2,
     pub velocity: V2,
@@ -37,4 +37,6 @@ impl Mul<f64> for ObjectState {
     }
 }
 
-impl State for ObjectState {}
+impl State for ObjectState {
+    type Multiplier = Scalar;
+}
