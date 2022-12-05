@@ -1,12 +1,15 @@
 pub mod euler;
-mod runge_kutta_4;
+pub mod runge_kutta_4;
 
 use std::ops::{Add, Mul};
 
+use crate::state::{Multiplier, State};
+
 pub trait OdeSolver {
     //S is the state, F is the right hand side of the first order differential equation
-    fn solve<S, F>(curr_state: &S, f: F, dt: f64) -> S
+    fn solve<M, S, F>(curr_state: &S, f: F, dt: f64) -> S
     where
-        S: Copy + Add<Output = S> + Mul<f64, Output = S>,
+        M: Multiplier,
+        S: State<Multiplier = M>,
         F: Fn(&S) -> S;
 }

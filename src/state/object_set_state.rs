@@ -1,12 +1,27 @@
-use std::ops::{Add, Mul};
+use std::{
+    iter::Sum,
+    ops::{Add, Mul},
+};
 
 use crate::{Scalar, V2};
 
 use super::{object_state::ObjectState, Multiplier, State};
 
 #[derive(Clone, Copy)]
-struct ObjectSetState<const N: usize> {
-    states: [ObjectState; N],
+pub struct ObjectSetState<const N: usize> {
+    pub states: [ObjectState; N],
+}
+
+impl<const N: usize> ObjectSetState<N> {
+    pub fn new(states: [ObjectState; N]) -> Self {
+        Self { states }
+    }
+
+    pub fn zero() -> Self {
+        Self {
+            states: [ObjectState::zero(); N],
+        }
+    }
 }
 
 impl<const N: usize> Add for ObjectSetState<N> {
@@ -23,6 +38,18 @@ impl<const N: usize> Add for ObjectSetState<N> {
                 .try_into()
                 .unwrap(),
         }
+    }
+}
+
+impl<const N: usize> Sum for ObjectSetState<N> {
+    fn sum<I: Iterator<Item = Self>>(iter: I) -> Self {
+        iter.fold(Self::zero(), |a, b| a + b)
+    }
+}
+
+impl<const N: usize> Multiplier for [Scalar; N] {
+    fn from_scalar(scaler: Scalar) -> Self {
+        [scaler; N]
     }
 }
 
@@ -43,9 +70,13 @@ impl<const N: usize> Mul<[Scalar; N]> for ObjectSetState<N> {
     }
 }
 
-impl<const N: usize> Multiplier for [Scalar; N] {
-    fn from_scalar(scaler: Scalar) -> Self {
-        [scaler; N]
+impl<const N: usize> Mul<Scalar> for ObjectSetState<N> {
+    type Output = Self;
+
+    fn mul(self, rhs: Scalar) -> Self::Output {
+        ObjectSetState {
+            states: self.states.map(|s| s * rhs),
+        }
     }
 }
 

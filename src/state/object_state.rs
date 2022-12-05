@@ -14,6 +14,13 @@ impl ObjectState {
     pub fn new(position: V2, velocity: V2) -> Self {
         Self { position, velocity }
     }
+
+    pub fn zero() -> ObjectState {
+        Self {
+            position: V2::zero(),
+            velocity: V2::zero(),
+        }
+    }
 }
 
 impl Add for ObjectState {

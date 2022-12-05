@@ -1,15 +1,15 @@
+use crate::state::{Multiplier, State};
+
 use super::OdeSolver;
 
-struct RungeKutta4;
+pub struct RungeKutta4;
 impl OdeSolver for RungeKutta4 {
-    fn solve<
-        S: Copy + std::ops::Add<Output = S> + std::ops::Mul<f64, Output = S>,
+    fn solve<M, S, F>(curr_state: &S, f: F, dt: f64) -> S
+    where
+        M: Multiplier,
+        S: State<Multiplier = M>,
         F: Fn(&S) -> S,
-    >(
-        curr_state: &S,
-        f: F,
-        dt: f64,
-    ) -> S {
+    {
         let k1 = f(curr_state);
         let k2 = f(&(*curr_state + k1 * (dt / 2.0)));
         let k3 = f(&(*curr_state + k2 * (dt / 2.0)));

@@ -1,41 +1,40 @@
 use super::ForceGenerator;
-use crate::{state::object_state::ObjectState, Scalar, V2};
+use crate::{
+    state::{object_set_state::ObjectSetState, object_state::ObjectState},
+    Scalar,
+};
 
-pub struct Spring<'a> {
-    pub f1: SpringForce<'a>,
-    pub f2: SpringForce<'a>,
+pub struct Spring {
+    pub p1_index: usize,
+    pub p2_index: usize,
+    pub target_length: Scalar,
+    pub strength: Scalar,
 }
 
-impl<'a> Spring<'a> {
-    pub fn new(p1: &'a V2, p2: &'a V2, target_length: Scalar, strength: Scalar) -> Self {
+impl Spring {
+    pub fn new(p1_index: usize, p2_index: usize, target_length: Scalar, strength: Scalar) -> Self {
         Self {
-            f1: SpringForce::new(p2, target_length, strength),
-            f2: SpringForce::new(p1, target_length, strength),
-        }
-    }
-}
-
-pub struct SpringForce<'a> {
-    other_point: &'a V2,
-    target_length: Scalar,
-    strength: Scalar,
-}
-
-impl<'a> SpringForce<'a> {
-    pub fn new(other_point: &'a V2, target_length: Scalar, strength: Scalar) -> Self {
-        Self {
-            other_point,
+            p1_index,
+            p2_index,
             target_length,
             strength,
         }
     }
 }
 
-impl<'a> ForceGenerator for SpringForce<'a> {
+impl<'a, const N: usize> ForceGenerator<N> for Spring {
+    fn get_force(&self, system_state: &ObjectSetState<N>) -> ObjectSetState<N> {
+        assert!(self.p1_index < N);
+        assert!(self.p2_index < N);
+        let p1_state = system_state.states[self.p1_index];
+        let p2_state = system_state.states[self.p2_index];
 
-    fn get_force(&self, curr_state: &ObjectState) -> ObjectState {
-        let a_b = self.other_point - curr_state.position;
-        let f = a_b.normalized() * (a_b.magnitude() - self.target_length) * self.strength;
-        ObjectState::new(curr_state.velocity, f)
+        let p1_p2 = p2_state.position - p1_state.position;
+        let f = p1_p2.normalized() * (p1_p2.magnitude() - self.target_length) * self.strength;
+
+        let mut result = ObjectSetState::zero();
+        result.states[self.p1_index] = ObjectState::new(p1_state.velocity, f);
+        result.states[self.p2_index] = ObjectState::new(p1_state.velocity, -f);
+        result
     }
 }

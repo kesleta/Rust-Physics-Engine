@@ -1,20 +1,29 @@
-use crate::{state::object_state::ObjectState, Scalar, V2};
+use crate::{
+    state::{object_set_state::ObjectSetState, object_state::ObjectState},
+    Scalar, V2,
+};
 
 use super::ForceGenerator;
 
-struct Gravity {
+pub struct Gravity {
     pub strength: Scalar,
 }
 
 impl Gravity {
-    fn new(strength: Scalar) -> Self {
+    pub fn new(strength: Scalar) -> Self {
         Self { strength }
     }
 }
 
-impl ForceGenerator for Gravity {
-
-    fn get_force(&self, curr_state: &ObjectState) -> ObjectState {
-        ObjectState::new(curr_state.velocity, V2::new(0.0, -self.strength))
+impl<const N: usize> ForceGenerator<N> for Gravity {
+    fn get_force(&self, system_state: &ObjectSetState<N>) -> ObjectSetState<N> {
+        let mut result: Vec<_> = Vec::new();
+        for obj_state in system_state.states {
+            result.push(ObjectState::new(
+                obj_state.velocity,
+                V2::new(0.0, -self.strength),
+            ))
+        }
+        ObjectSetState::new(result.try_into().unwrap())
     }
 }

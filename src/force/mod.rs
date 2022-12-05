@@ -1,12 +1,9 @@
+pub mod sum_force;
 pub mod gravity;
 pub mod spring;
-pub mod sum_force;
-pub mod force_set;
 
-use crate::state::object_state::ObjectState;
+use crate::state::object_set_state::ObjectSetState;
 
-pub use self::sum_force::SumForce;
-
-pub trait ForceGenerator {
-    fn get_force(&self, curr_state: &ObjectState) -> ObjectState;
+pub trait ForceGenerator<const N: usize> {
+    fn get_force(&self, system_state: &ObjectSetState<N>) -> ObjectSetState<N>;
 }
