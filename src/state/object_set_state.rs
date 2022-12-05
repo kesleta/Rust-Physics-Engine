@@ -3,11 +3,11 @@ use std::{
     ops::{Add, Mul},
 };
 
-use crate::{Scalar, V2};
+use crate::Scalar;
 
 use super::{object_state::ObjectState, Multiplier, State};
 
-#[derive(Clone, Copy)]
+#[derive(Clone, Copy, Debug)]
 pub struct ObjectSetState<const N: usize> {
     pub states: [ObjectState; N],
 }

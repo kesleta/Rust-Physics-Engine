@@ -1,6 +1,7 @@
 pub mod sum_force;
 pub mod gravity;
 pub mod spring;
+pub mod dampening;
 
 use crate::state::object_set_state::ObjectSetState;
 

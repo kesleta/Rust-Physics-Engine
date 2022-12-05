@@ -34,7 +34,7 @@ impl<'a, const N: usize> ForceGenerator<N> for Spring {
 
         let mut result = ObjectSetState::zero();
         result.states[self.p1_index] = ObjectState::new(p1_state.velocity, f);
-        result.states[self.p2_index] = ObjectState::new(p1_state.velocity, -f);
+        result.states[self.p2_index] = ObjectState::new(p2_state.velocity, -f);
         result
     }
 }

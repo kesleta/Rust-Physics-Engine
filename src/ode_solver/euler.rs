@@ -1,5 +1,3 @@
-use std::ops::{Add, Mul};
-
 use crate::state::{Multiplier, State};
 
 use super::OdeSolver;

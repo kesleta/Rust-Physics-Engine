@@ -1,8 +1,6 @@
 pub mod euler;
 pub mod runge_kutta_4;
 
-use std::ops::{Add, Mul};
-
 use crate::state::{Multiplier, State};
 
 pub trait OdeSolver {
