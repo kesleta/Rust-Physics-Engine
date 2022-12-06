@@ -5,11 +5,11 @@ use crate::{
 
 use super::Object;
 
-pub struct ObjectSet<'a, const N: usize> {
-    pub objects: [&'a mut dyn Object; N],
+pub struct ObjectSet<const N: usize> {
+    pub objects: [Box<dyn Object>; N],
 }
 
-impl<'a, const N: usize> ObjectSet<'a, N> {
+impl<'a, const N: usize> ObjectSet<N> {
     pub fn get_states(&self) -> ObjectSetState<N> {
         ObjectSetState {
             states: self

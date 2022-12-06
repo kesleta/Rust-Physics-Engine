@@ -4,7 +4,10 @@ mod ode_solver;
 mod physics_system;
 mod state;
 
-use force::{spring::Spring, dampening::{self, Dampening}};
+use force::{
+    dampening::{self, Dampening},
+    spring::Spring,
+};
 use nannou::prelude::*;
 use object::ball::Ball;
 use ode_solver::{euler::Euler, runge_kutta_4::RungeKutta4};
@@ -14,8 +17,7 @@ pub type Scalar = f64;
 pub type V2 = vek::vec2::Vec2<Scalar>;
 
 struct Model {
-    ball1: Ball,
-    ball2: Ball,
+    physics_system: PhysicsSystem<2, RungeKutta4>,
 }
 
 fn main() {
@@ -23,20 +25,22 @@ fn main() {
 }
 
 fn model(_app: &App) -> Model {
+    let ball1 = Ball::new(V2::new(-200.0, 0.0), V2::zero(), 1.0, 50.0);
+    let ball2 = Ball::new(V2::new(200.0, 0.0), V2::zero(), 1.0, 50.0);
+    let spring = Spring::new(0, 1, 300.0, 5.0);
+    let dampening = Dampening::new(0.2);
     Model {
-        ball1: Ball::new(V2::new(-200.0, 0.0), V2::zero(), 1.0, 50.0),
-        ball2: Ball::new(V2::new(200.0, 0.0), V2::zero(), 1.0, 50.0),
+        physics_system: PhysicsSystem::new(
+            [Box::new(ball1), Box::new(ball2)],
+            vec![Box::new(spring), Box::new(dampening)],
+        ),
     }
 }
 
 fn event(_app: &App, model: &mut Model, event: Event) {
     match event {
         Event::Update(u) => {
-            let spring = Spring::new(0, 1, 300.0, 1.0);
-            let dampening = Dampening::new(0.1);
-            let mut physics_system: PhysicsSystem<2, RungeKutta4> =
-                PhysicsSystem::new([&mut model.ball1, &mut model.ball2], vec![&spring, &dampening]);
-            physics_system.update(u.since_last.as_secs_f64());
+            model.physics_system.update(u.since_last.as_secs_f64());
         }
         _ => {}
     }
@@ -50,25 +54,25 @@ fn view(app: &App, model: &Model, frame: Frame) {
 
     draw.background().color(background_color);
 
-    let ball1_pos = model.ball1.position;
-    let ball2_pos = model.ball2.position;
+    let state1 = model.physics_system.object_set.objects[0].get_state();
+    let state2 = model.physics_system.object_set.objects[1].get_state();
 
     draw.ellipse()
-        .x_y(ball1_pos.x as f32, ball1_pos.y as f32)
-        .radius(model.ball1.radius as f32)
+        .x_y(state1.position.x as f32, state1.position.y as f32)
+        .radius(40.0) // TODO!!!!!
         .color(object_color)
         .stroke(BLACK)
         .stroke_weight(outline_weight);
-    draw.ellipse()
-        .x_y(ball2_pos.x as f32, ball1_pos.y as f32)
+        draw.ellipse()
+        .x_y(state2.position.x as f32, state2.position.y as f32)
+        .radius(40.0) // TODO!!!!!
         .color(object_color)
-        .radius(model.ball2.radius as f32)
         .stroke(BLACK)
         .stroke_weight(outline_weight);
     draw.line()
         .points(
-            Vec2::new(ball1_pos.x as f32, ball1_pos.y as f32),
-            Vec2::new(ball2_pos.x as f32, ball2_pos.y as f32),
+            Vec2::new(state1.position.x as f32, state1.position.y as f32),
+            Vec2::new(state2.position.x as f32, state2.position.y as f32),
         )
         .weight(4.0);
 

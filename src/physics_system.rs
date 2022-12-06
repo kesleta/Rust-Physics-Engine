@@ -6,14 +6,14 @@ use crate::{
     ode_solver::OdeSolver,
 };
 
-pub struct PhysicsSystem<'a, const N: usize, S: OdeSolver> {
-    pub object_set: ObjectSet<'a, N>,
-    pub force_set: SumForce<'a, N>,
+pub struct PhysicsSystem<const N: usize, S: OdeSolver> {
+    pub object_set: ObjectSet<N>,
+    pub force_set: SumForce<N>,
     ode_solver: PhantomData<S>,
 }
 
-impl<'a, const N: usize, S: OdeSolver> PhysicsSystem<'a, N, S> {
-    pub fn new(os: [&'a mut dyn Object; N], fs: Vec<&'a dyn ForceGenerator<N>>) -> Self {
+impl<const N: usize, S: OdeSolver> PhysicsSystem<N, S> {
+    pub fn new(os: [Box<dyn Object>; N], fs: Vec<Box<dyn ForceGenerator<N>>>) -> Self {
 
         Self {
             object_set: ObjectSet {
