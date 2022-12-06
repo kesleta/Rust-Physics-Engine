@@ -33,7 +33,8 @@ impl<S: OdeSolver> PhysicsSystem<S> {
                         .get_force(set_state)
                         .iter()
                         .zip(state.states.iter().map(|s| s.velocity))
-                        .map(|(a, v)| ObjectState::new(v, *a))
+                        .zip(masses.iter())
+                        .map(|((a, v), m)| ObjectState::new(v, *a * m.recip()))
                         .collect(),
                 )
             },

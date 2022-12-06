@@ -5,7 +5,7 @@ mod physics_system;
 mod state;
 
 use force::{
-    linear_damping::{self, LinearDamper},
+    linear_damping::LinearDamper,
     spring::Spring,
 };
 use nannou::prelude::*;
