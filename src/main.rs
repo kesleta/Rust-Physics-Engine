@@ -5,7 +5,7 @@ mod physics_system;
 mod state;
 
 use force::{
-    dampening::{self, Dampening},
+    linear_damping::{self, LinearDamper},
     spring::Spring,
 };
 use nannou::prelude::*;
@@ -17,7 +17,7 @@ pub type Scalar = f64;
 pub type V2 = vek::vec2::Vec2<Scalar>;
 
 struct Model {
-    physics_system: PhysicsSystem<2, RungeKutta4>,
+    physics_system: PhysicsSystem<RungeKutta4>,
 }
 
 fn main() {
@@ -28,10 +28,10 @@ fn model(_app: &App) -> Model {
     let ball1 = Ball::new(V2::new(-200.0, 0.0), V2::zero(), 1.0, 50.0);
     let ball2 = Ball::new(V2::new(200.0, 0.0), V2::zero(), 1.0, 50.0);
     let spring = Spring::new(0, 1, 300.0, 5.0);
-    let dampening = Dampening::new(0.2);
+    let dampening = LinearDamper::new(0.2);
     Model {
         physics_system: PhysicsSystem::new(
-            [Box::new(ball1), Box::new(ball2)],
+            vec![Box::new(ball1), Box::new(ball2)],
             vec![Box::new(spring), Box::new(dampening)],
         ),
     }
@@ -63,7 +63,7 @@ fn view(app: &App, model: &Model, frame: Frame) {
         .color(object_color)
         .stroke(BLACK)
         .stroke_weight(outline_weight);
-        draw.ellipse()
+    draw.ellipse()
         .x_y(state2.position.x as f32, state2.position.y as f32)
         .radius(40.0) // TODO!!!!!
         .color(object_color)

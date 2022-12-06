@@ -1,19 +1,18 @@
-use crate::state::{Multiplier, State};
+use crate::state::State;
 
 use super::OdeSolver;
 
 pub struct RungeKutta4;
 impl OdeSolver for RungeKutta4 {
-    fn solve<M, S, F>(curr_state: &S, f: F, dt: f64) -> S
+    fn solve<S, F>(curr_state: &S, f: F, dt: f64) -> S
     where
-        M: Multiplier,
-        S: State<Multiplier = M>,
+        S: State,
         F: Fn(&S) -> S,
     {
         let k1 = f(curr_state);
-        let k2 = f(&(*curr_state + k1 * (dt / 2.0)));
-        let k3 = f(&(*curr_state + k2 * (dt / 2.0)));
-        let k4 = f(&(*curr_state + k3 * dt));
-        *curr_state + (k1 + (k2 * 2.0) + (k3 * 2.0) + k4) * (1.0 / 6.0) * dt
+        let k2 = f(&(curr_state.clone() + k1.clone() * (dt / 2.0)));
+        let k3 = f(&(curr_state.clone() + k2.clone() * (dt / 2.0)));
+        let k4 = f(&(curr_state.clone() + k3.clone() * dt));
+        curr_state.clone() + (k1 + (k2 * 2.0) + (k3 * 2.0) + k4) * (1.0 / 6.0) * dt
     }
 }

@@ -1,6 +1,6 @@
 use std::ops::{Add, Mul};
 
-use crate::{Scalar, V2};
+use crate::V2;
 
 use super::State;
 
@@ -44,6 +44,4 @@ impl Mul<f64> for ObjectState {
     }
 }
 
-impl State for ObjectState {
-    type Multiplier = Scalar;
-}
+impl State for ObjectState {}

@@ -5,18 +5,18 @@ use crate::{
 
 use super::ForceGenerator;
 
-pub struct Gravity {
+pub struct LinearDamper {
     pub strength: Scalar,
 }
 
-impl Gravity {
+impl LinearDamper {
     pub fn new(strength: Scalar) -> Self {
         Self { strength }
     }
 }
 
-impl ForceGenerator for Gravity {
+impl ForceGenerator for LinearDamper {
     fn get_force(&self, system_state: &ObjectSetState) -> Vec<V2> {
-        system_state.states.iter().map(|_| V2::new(0.0, -self.strength)).collect()
+        system_state.states.iter().map(|s| s.velocity * -self.strength).collect()
     }
 }

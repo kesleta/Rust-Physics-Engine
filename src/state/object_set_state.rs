@@ -5,26 +5,20 @@ use std::{
 
 use crate::Scalar;
 
-use super::{object_state::ObjectState, Multiplier, State};
+use super::{object_state::ObjectState, State};
 
-#[derive(Clone, Copy, Debug)]
-pub struct ObjectSetState<const N: usize> {
-    pub states: [ObjectState; N],
+#[derive(Clone, Debug)]
+pub struct ObjectSetState {
+    pub states: Vec<ObjectState>,
 }
 
-impl<const N: usize> ObjectSetState<N> {
-    pub fn new(states: [ObjectState; N]) -> Self {
+impl ObjectSetState {
+    pub fn new(states: Vec<ObjectState>) -> Self {
         Self { states }
     }
-
-    pub fn zero() -> Self {
-        Self {
-            states: [ObjectState::zero(); N],
-        }
-    }
 }
 
-impl<const N: usize> Add for ObjectSetState<N> {
+impl Add for ObjectSetState {
     type Output = Self;
 
     fn add(self, rhs: Self) -> Self::Output {
@@ -41,45 +35,20 @@ impl<const N: usize> Add for ObjectSetState<N> {
     }
 }
 
-impl<const N: usize> Sum for ObjectSetState<N> {
+impl Sum for ObjectSetState {
     fn sum<I: Iterator<Item = Self>>(iter: I) -> Self {
-        iter.fold(Self::zero(), |a, b| a + b)
+        iter.reduce(|a, b| a + b).unwrap()
     }
 }
 
-impl<const N: usize> Multiplier for [Scalar; N] {
-    fn from_scalar(scaler: Scalar) -> Self {
-        [scaler; N]
-    }
-}
-
-impl<const N: usize> Mul<[Scalar; N]> for ObjectSetState<N> {
-    type Output = Self;
-
-    fn mul(self, rhs: [Scalar; N]) -> Self::Output {
-        ObjectSetState {
-            states: self
-                .states
-                .iter()
-                .zip(rhs)
-                .map(|(s, m)| *s * m)
-                .collect::<Vec<ObjectState>>()
-                .try_into()
-                .unwrap(),
-        }
-    }
-}
-
-impl<const N: usize> Mul<Scalar> for ObjectSetState<N> {
+impl Mul<Scalar> for ObjectSetState {
     type Output = Self;
 
     fn mul(self, rhs: Scalar) -> Self::Output {
         ObjectSetState {
-            states: self.states.map(|s| s * rhs),
+            states: self.states.iter().map(|s| *s * rhs).collect(),
         }
     }
 }
 
-impl<const N: usize> State for ObjectSetState<N> {
-    type Multiplier = [Scalar; N];
-}
+impl State for ObjectSetState {}

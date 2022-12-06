@@ -5,12 +5,12 @@ use crate::{
 
 use super::Object;
 
-pub struct ObjectSet<const N: usize> {
-    pub objects: [Box<dyn Object>; N],
+pub struct ObjectSet {
+    pub objects: Vec<Box<dyn Object>>,
 }
 
-impl<'a, const N: usize> ObjectSet<N> {
-    pub fn get_states(&self) -> ObjectSetState<N> {
+impl ObjectSet {
+    pub fn get_states(&self) -> ObjectSetState {
         ObjectSetState {
             states: self
                 .objects
@@ -22,7 +22,7 @@ impl<'a, const N: usize> ObjectSet<N> {
         }
     }
 
-    pub fn set_states(&mut self, state: ObjectSetState<N>) {
+    pub fn set_states(&mut self, state: ObjectSetState) {
         self.objects
             .iter_mut()
             .zip(state.states)
@@ -30,7 +30,7 @@ impl<'a, const N: usize> ObjectSet<N> {
             .collect()
     }
 
-    pub fn get_masses(&self) -> [Scalar; N] {
+    pub fn get_masses(&self) -> Vec<Scalar> {
         self.objects
             .iter()
             .map(|o| o.get_mass())

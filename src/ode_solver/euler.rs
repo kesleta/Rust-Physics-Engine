@@ -1,15 +1,14 @@
-use crate::state::{Multiplier, State};
+use crate::state::State;
 
 use super::OdeSolver;
 
 pub struct Euler;
 impl OdeSolver for Euler {
-    fn solve<M, S, F>(curr_state: &S, f: F, dt: f64) -> S
+    fn solve<S, F>(curr_state: &S, f: F, dt: f64) -> S
     where
-        M: Multiplier,
-        S: State<Multiplier = M>,
+        S: State,
         F: Fn(&S) -> S,
     {
-        *curr_state + f(&curr_state) * dt
+        curr_state.clone() + f(&curr_state) * dt
     }
 }
