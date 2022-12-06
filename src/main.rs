@@ -5,6 +5,7 @@ mod ode_solver;
 mod physics_system;
 mod state;
 
+use constraint::anchor::Anchor;
 use force::{quad_damping::QuadDamper, spring::Spring};
 use nannou::prelude::*;
 use object::ball::Ball;
@@ -27,12 +28,16 @@ fn model(_app: &App) -> Model {
 
     let ball1 = Ball::new(V2::new(-200.0, 0.0), V2::zero(), 1.0, 50.0);
     let ball2 = Ball::new(V2::new(200.0, 0.0), V2::zero(), 1.0, 50.0);
+
     let spring = Spring::new(0, 1, 300.0, 5.0);
     let damping = QuadDamper::new(0.001);
+
+    let anchor = Anchor::new(0, V2::new(-200.0, 0.0));
     Model {
         physics_system: PhysicsSystem::new(
             vec![Box::new(ball1), Box::new(ball2)],
             vec![Box::new(spring), Box::new(damping)],
+            vec![Box::new(anchor)],
         ),
     }
 }

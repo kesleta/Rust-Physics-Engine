@@ -20,7 +20,7 @@ impl Constraint for Anchor {
     fn constrain_position(&self, positions: &Vec<V2>) -> Scalar {
         assert!(self.object_index < positions.len());
         let pos = positions[self.object_index];
-        (pos - self.position.x).magnitude()
+        (pos - self.position).magnitude()
     }
 
     fn constrain_velocities(&self, velocities: &Vec<V2>) -> Scalar {
@@ -33,5 +33,9 @@ impl Constraint for Anchor {
         assert!(self.object_index < accelerations.len());
         let acc = accelerations[self.object_index];
         acc.magnitude()
+    }
+
+    fn get_indicies(&self) -> Vec<usize> {
+        vec![self.object_index]
     }
 }

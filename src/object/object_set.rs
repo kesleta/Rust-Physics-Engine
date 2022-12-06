@@ -10,6 +10,10 @@ pub struct ObjectSet {
 }
 
 impl ObjectSet {
+    pub fn new(objects: Vec<Box<dyn Object>>) -> Self {
+        Self { objects }
+    }
+
     pub fn get_states(&self) -> ObjectSetState {
         ObjectSetState {
             states: self
