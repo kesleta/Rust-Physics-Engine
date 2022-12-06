@@ -11,4 +11,8 @@ impl ForceGenerator for SumForce {
         let fs = self.forces.iter().map(|f| f.get_force(curr_state));
         fs.reduce(|v1, v2| v1.iter().zip(v2.iter()).map(|(a, b)| a + b).collect()).unwrap()
     }
+
+    fn get_potential(&self, system_state: &ObjectSetState) -> crate::Scalar {
+        self.forces.iter().map(|f| f.get_potential(system_state)).sum()
+    }
 }

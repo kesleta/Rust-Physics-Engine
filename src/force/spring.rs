@@ -1,10 +1,8 @@
 use super::ForceGenerator;
-use crate::{
-    state::{object_set_state::ObjectSetState},
-    Scalar, V2,
-};
+use crate::{state::object_set_state::ObjectSetState, Scalar, V2};
 use std::iter::repeat;
 
+#[derive(Debug, Clone)]
 pub struct Spring {
     pub p1_index: usize,
     pub p2_index: usize,
@@ -37,5 +35,16 @@ impl ForceGenerator for Spring {
         result[self.p1_index] = f;
         result[self.p2_index] = -f;
         result
+    }
+
+    fn get_potential(&self, system_state: &ObjectSetState) -> Scalar {
+        assert!(self.p1_index < system_state.states.len());
+        assert!(self.p2_index < system_state.states.len());
+        let p1_state = system_state.states[self.p1_index];
+        let p2_state = system_state.states[self.p2_index];
+
+        let displacement = (p1_state.position - p2_state.position).magnitude() - self.target_length;
+
+        (1.0 / 2.0) * self.strength * displacement.powi(2)
     }
 }

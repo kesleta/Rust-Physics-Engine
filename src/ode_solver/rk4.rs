@@ -2,8 +2,8 @@ use crate::state::State;
 
 use super::OdeSolver;
 
-pub struct RungeKutta4;
-impl OdeSolver for RungeKutta4 {
+pub struct RK4;
+impl OdeSolver for RK4 {
     fn solve<S, F>(curr_state: &S, f: F, dt: f64) -> S
     where
         S: State,

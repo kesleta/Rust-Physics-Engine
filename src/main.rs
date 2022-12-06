@@ -1,23 +1,21 @@
+mod constraint;
 mod force;
 mod object;
 mod ode_solver;
 mod physics_system;
 mod state;
 
-use force::{
-    linear_damping::LinearDamper,
-    spring::Spring,
-};
+use force::{quad_damping::QuadDamper, spring::Spring};
 use nannou::prelude::*;
 use object::ball::Ball;
-use ode_solver::{euler::Euler, runge_kutta_4::RungeKutta4};
+use ode_solver::rk4::RK4;
 use physics_system::PhysicsSystem;
 
 pub type Scalar = f64;
 pub type V2 = vek::vec2::Vec2<Scalar>;
 
 struct Model {
-    physics_system: PhysicsSystem<RungeKutta4>,
+    physics_system: PhysicsSystem<RK4>,
 }
 
 fn main() {
@@ -25,14 +23,16 @@ fn main() {
 }
 
 fn model(_app: &App) -> Model {
+    // app.set_loop_mode(LoopMode::rate_fps(1.0)); Not effective for some reason: https://github.com/nannou-org/nannou/issues/708
+
     let ball1 = Ball::new(V2::new(-200.0, 0.0), V2::zero(), 1.0, 50.0);
     let ball2 = Ball::new(V2::new(200.0, 0.0), V2::zero(), 1.0, 50.0);
     let spring = Spring::new(0, 1, 300.0, 5.0);
-    let dampening = LinearDamper::new(0.2);
+    let damping = QuadDamper::new(0.001);
     Model {
         physics_system: PhysicsSystem::new(
             vec![Box::new(ball1), Box::new(ball2)],
-            vec![Box::new(spring), Box::new(dampening)],
+            vec![Box::new(spring), Box::new(damping)],
         ),
     }
 }
@@ -40,7 +40,14 @@ fn model(_app: &App) -> Model {
 fn event(_app: &App, model: &mut Model, event: Event) {
     match event {
         Event::Update(u) => {
-            model.physics_system.update(u.since_last.as_secs_f64());
+            let ups = 10000;
+            let sub_divisions = ups / 60;
+            for _ in 0..sub_divisions {
+                model
+                    .physics_system
+                    .update(u.since_last.as_secs_f64() / (sub_divisions as f64));
+            }
+            println!("{}", model.physics_system.get_energy());
         }
         _ => {}
     }

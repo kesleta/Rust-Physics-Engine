@@ -1,6 +1,7 @@
 use super::Object;
 use crate::{state::object_state::ObjectState, Scalar, V2};
 
+#[derive(Debug, Clone)]
 pub struct Ball {
     pub position: V2,
     pub velocity: V2,

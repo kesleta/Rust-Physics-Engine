@@ -4,7 +4,7 @@ use crate::{
     force::{sum_force::SumForce, ForceGenerator},
     object::{object_set::ObjectSet, Object},
     ode_solver::OdeSolver,
-    state::{object_set_state::ObjectSetState, object_state::ObjectState},
+    state::{object_set_state::ObjectSetState, object_state::ObjectState}, Scalar,
 };
 
 pub struct PhysicsSystem<S: OdeSolver> {
@@ -41,5 +41,9 @@ impl<S: OdeSolver> PhysicsSystem<S> {
             dt,
         );
         self.object_set.set_states(new_state);
+    }
+
+    pub fn get_energy(&self) -> Scalar{
+        self.force_set.get_potential(&self.object_set.get_states()) + self.object_set.get_kinetic()
     }
 }

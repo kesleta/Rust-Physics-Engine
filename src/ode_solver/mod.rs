@@ -1,5 +1,5 @@
 pub mod euler;
-pub mod runge_kutta_4;
+pub mod rk4;
 
 use crate::state::State;
 

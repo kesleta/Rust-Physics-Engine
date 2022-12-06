@@ -38,4 +38,11 @@ impl ObjectSet {
             .try_into()
             .unwrap()
     }
+
+    pub fn get_kinetic(&self) -> Scalar {
+        self.objects
+            .iter()
+            .map(|o| (1.0 / 2.0) * o.get_mass() * o.get_state().velocity.magnitude_squared())
+            .sum()
+    }
 }
