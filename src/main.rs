@@ -30,7 +30,7 @@ fn model(_app: &App) -> Model {
     let ball2 = Ball::new(V2::new(200.0, 0.0), V2::zero(), 1.0, 50.0);
 
     let spring = Spring::new(0, 1, 300.0, 5.0);
-    let damping = QuadDamper::new(0.001);
+    let damping = QuadDamper::new(0.004);
 
     let anchor = Anchor::new(0, V2::new(-200.0, 0.0));
     Model {

@@ -3,7 +3,7 @@ use std::{
     ops::{Add, Mul},
 };
 
-use crate::Scalar;
+use crate::{Scalar, V2};
 
 use super::{object_state::ObjectState, State};
 
@@ -15,6 +15,14 @@ pub struct ObjectSetState {
 impl ObjectSetState {
     pub fn new(states: Vec<ObjectState>) -> Self {
         Self { states }
+    }
+
+    pub fn get_positions(&self) -> Vec<V2> {
+        self.states.iter().map(|s| s.position).collect()
+    }
+
+    pub fn get_velocities(&self) -> Vec<V2> {
+        self.states.iter().map(|s| s.velocity).collect()
     }
 }
 

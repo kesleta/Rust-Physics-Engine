@@ -1,9 +1,11 @@
-use crate::{state::object_set_state::ObjectSetState, Scalar};
+use nannou::winit::dpi::Position;
+
+use crate::{state::object_set_state::ObjectSetState, Scalar, V2};
 
 use super::Constraint;
 
 pub struct ConstraintSet {
-    constraints: Vec<Box<dyn Constraint>>,
+    pub constraints: Vec<Box<dyn Constraint>>,
 }
 
 impl ConstraintSet {
@@ -21,5 +23,45 @@ impl ConstraintSet {
             })
             .sum::<Scalar>()
             == 0.0
+    }
+
+    pub fn compute_constraint_vector(&self, positions: &Vec<V2>) -> Vec<Scalar> {
+        self.constraints
+            .iter()
+            .map(|c| c.constrain_position(positions))
+            .collect()
+    }
+
+    pub fn compute_constraint_vector_dot(&self, velocities: &Vec<V2>) -> Vec<Scalar> {
+        self.constraints
+            .iter()
+            .map(|c| c.constrain_velocities(velocities))
+            .collect()
+    }
+
+    pub fn get_jacobian(&self, positions: &Vec<V2>) -> Vec<(usize, usize, V2)> {
+        self.constraints
+            .iter()
+            .enumerate()
+            .map(|(c_i, c)| {
+                c.get_jacobian_slice(&positions)
+                    .into_iter()
+                    .map(move |(i, v)| (i, c_i, v))
+            })
+            .flatten()
+            .collect()
+    }
+
+    pub fn get_jacobian_dot(&self, velocities: &Vec<V2>) -> Vec<(usize, usize, V2)> {
+        self.constraints
+            .iter()
+            .enumerate()
+            .map(|(c_i, c)| {
+                c.get_jacobian_dot_slice(&velocities)
+                    .into_iter()
+                    .map(move |(i, v)| (c_i, i, v))
+            })
+            .flatten()
+            .collect()
     }
 }

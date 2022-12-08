@@ -1,0 +1,49 @@
+let forces: Vec<V2> = self
+            .force_set
+            .get_force(&state)
+            .iter()
+            .zip(&masses)
+            .map(|(f, m)| *f * m.recip())
+            .collect();
+
+        let num_objects = self.object_set.objects.len();
+
+        let jacobian_v = self.constraint_set.get_jacobian(&state.get_positions());
+        let jacobian: CsMat<_> = TriMat::from_triplets(
+            (self.constraint_set.constraints.len(), num_objects),
+            jacobian_v.iter().map(|(r, _, _)| *r).collect(),
+            jacobian_v.iter().map(|(_, c, _)| *c).collect(),
+            jacobian_v.iter().map(|(_, _, x)| *x).collect(),
+        )
+        .to_csr();
+        let jacobian_transpose: CsMat<_> = TriMat::from_triplets(
+            (num_objects, self.constraint_set.constraints.len()),
+            jacobian_v.iter().map(|(_, c, _)| *c).collect(),
+            jacobian_v.iter().map(|(r, _, _)| *r).collect(),
+            jacobian_v.iter().map(|(_, _, x)| *x).collect(),
+        )
+        .to_csr();
+
+        let inverse_mass_matrix: CsMat<_> = TriMat::from_triplets(
+            (num_objects, num_objects),
+            (0..num_objects).collect(),
+            (0..num_objects).collect(),
+            self.object_set
+                .get_masses()
+                .iter()
+                .map(|m| m.recip())
+                .collect(),
+        )
+        .to_csr();
+        let left_hand_matrix = &jacobian * &(&inverse_mass_matrix * &jacobian_transpose);
+        //----------
+        let jacobian_dot_v = self.constraint_set.get_jacobian_dot(&state.get_positions());
+
+        let jacobian_dot_velocity = state.get_velocities().iter().enumerate().map(|(i, v)| {
+            jacobian_dot_v
+                .iter()
+                .filter(move |(_, c, _)| *c == i)
+                .map(|(_, _, x)| v * x)
+                .fold(V2::zero(), |a, b| a + b);
+            todo!()
+        });

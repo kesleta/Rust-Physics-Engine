@@ -8,5 +8,6 @@ pub trait Constraint {
     fn constrain_velocities(&self, velocities: &Vec<V2>) -> Scalar;
     fn constrain_acceleration(&self, accelerations: &Vec<V2>) -> Scalar;
 
-    fn get_indicies(&self) -> Vec<usize>;
+    fn get_jacobian_slice(&self, positions: &Vec<V2>) -> Vec<(usize, V2)>;
+    fn get_jacobian_dot_slice(&self, velocities: &Vec<V2>) -> Vec<(usize, V2)>;
 }
