@@ -1,36 +1,30 @@
 use super::Object;
-use crate::{state::object_state::ObjectState, Scalar, V2};
+use crate::state::{object_state::ObjectState, pose::Pose};
 
 #[derive(Debug, Clone)]
 pub struct Ball {
-    pub position: V2,
-    pub velocity: V2,
-    pub mass: Scalar,
-    pub radius: Scalar,
+    pub pose: Pose,
+    pub vel: Pose,
+    pub mass: f64,
 }
 
 impl Object for Ball {
     fn get_state(&self) -> ObjectState {
-        ObjectState::new(self.position, self.velocity)
+        ObjectState::new(self.pose, self.vel)
     }
 
     fn set_state(&mut self, state: ObjectState) {
-        self.position = state.position;
-        self.velocity = state.velocity;
+        self.pose = state.pose;
+        self.vel = state.vel;
     }
 
-    fn get_mass(&self) -> Scalar {
+    fn get_mass(&self) -> f64 {
         self.mass
     }
 }
 
 impl Ball {
-    pub fn new(position: V2, velocity: V2, mass: Scalar, radius: Scalar) -> Self {
-        Self {
-            position,
-            velocity,
-            mass,
-            radius,
-        }
+    pub fn new(pose: Pose, vel: Pose, mass: f64) -> Self {
+        Self { pose, vel, mass }
     }
 }

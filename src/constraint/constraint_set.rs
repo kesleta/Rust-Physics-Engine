@@ -1,6 +1,4 @@
-use nannou::winit::dpi::Position;
-
-use crate::{state::object_set_state::ObjectSetState, Scalar, V2};
+use crate::state::{object_set_state::ObjectSetState, pose::Pose};
 
 use super::Constraint;
 
@@ -14,52 +12,48 @@ impl ConstraintSet {
     }
 
     pub fn check_initial(&self, initial_state: &ObjectSetState) -> bool {
-        let positions: Vec<_> = initial_state.states.iter().map(|s| s.position).collect();
-        let velocities: Vec<_> = initial_state.states.iter().map(|s| s.velocity).collect();
         self.constraints
             .iter()
-            .map(|c| {
-                c.constrain_position(&positions).abs() + c.constrain_velocities(&velocities).abs()
-            })
-            .sum::<Scalar>()
+            .map(|c| c.constrain_pose(&initial_state).abs() + c.constrain_vel(&initial_state).abs())
+            .sum::<f64>()
             == 0.0
     }
 
-    pub fn compute_constraint_vector(&self, positions: &Vec<V2>) -> Vec<Scalar> {
+    pub fn get_constraint_vector(&self, state: &ObjectSetState) -> Vec<f64> {
         self.constraints
             .iter()
-            .map(|c| c.constrain_position(positions))
+            .map(|c| c.constrain_pose(state))
             .collect()
     }
 
-    pub fn compute_constraint_vector_dot(&self, velocities: &Vec<V2>) -> Vec<Scalar> {
+    pub fn get_constraint_dot_vector(&self, state: &ObjectSetState) -> Vec<f64> {
         self.constraints
             .iter()
-            .map(|c| c.constrain_velocities(velocities))
+            .map(|c| c.constrain_vel(state))
             .collect()
     }
 
-    pub fn get_jacobian(&self, positions: &Vec<V2>) -> Vec<(usize, usize, V2)> {
+    pub fn get_jacobian_matrix(&self, state: &ObjectSetState) -> Vec<(usize, usize, f64)> {
         self.constraints
             .iter()
             .enumerate()
             .map(|(c_i, c)| {
-                c.get_jacobian_slice(&positions)
+                c.get_jacobian_block(&state)
                     .into_iter()
-                    .map(move |(i, v)| (i, c_i, v))
+                    .map(move |(i, j, p)| (i + 3 * c_i, j, p))
             })
             .flatten()
             .collect()
     }
 
-    pub fn get_jacobian_dot(&self, velocities: &Vec<V2>) -> Vec<(usize, usize, V2)> {
+    pub fn get_jacobian_dot_matrix(&self, state: &ObjectSetState) -> Vec<(usize, usize, f64)> {
         self.constraints
             .iter()
             .enumerate()
             .map(|(c_i, c)| {
-                c.get_jacobian_dot_slice(&velocities)
+                c.get_jacobian_dot_block(&state)
                     .into_iter()
-                    .map(move |(i, v)| (c_i, i, v))
+                    .map(move |(i, j, p)| (i + 3 * c_i, j, p))
             })
             .flatten()
             .collect()

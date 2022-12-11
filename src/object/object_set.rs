@@ -1,7 +1,4 @@
-use crate::{
-    state::{object_set_state::ObjectSetState, object_state::ObjectState},
-    Scalar,
-};
+use crate::state::{object_set_state::ObjectSetState, object_state::ObjectState};
 
 use super::Object;
 
@@ -34,19 +31,19 @@ impl ObjectSet {
             .collect()
     }
 
-    pub fn get_masses(&self) -> Vec<Scalar> {
+    pub fn get_masses(&self) -> Vec<f64> {
         self.objects
             .iter()
             .map(|o| o.get_mass())
-            .collect::<Vec<Scalar>>()
+            .collect::<Vec<f64>>()
             .try_into()
             .unwrap()
     }
 
-    pub fn get_kinetic(&self) -> Scalar {
+    pub fn get_kinetic(&self) -> f64 {
         self.objects
             .iter()
-            .map(|o| (1.0 / 2.0) * o.get_mass() * o.get_state().velocity.magnitude_squared())
+            .map(|o| (1.0 / 2.0) * o.get_mass() * o.get_state().vel.position.magnitude_squared())
             .sum()
     }
 }

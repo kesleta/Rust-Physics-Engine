@@ -1,13 +1,13 @@
 pub mod anchor;
 pub mod constraint_set;
+pub mod rod;
 
-use crate::{Scalar, V2};
+use crate::state::{pose::Pose, object_set_state::ObjectSetState};
 
 pub trait Constraint {
-    fn constrain_position(&self, positions: &Vec<V2>) -> Scalar;
-    fn constrain_velocities(&self, velocities: &Vec<V2>) -> Scalar;
-    fn constrain_acceleration(&self, accelerations: &Vec<V2>) -> Scalar;
+    fn constrain_pose(&self, state: &ObjectSetState) -> f64;
+    fn constrain_vel(&self, state: &ObjectSetState) -> f64;
 
-    fn get_jacobian_slice(&self, positions: &Vec<V2>) -> Vec<(usize, V2)>;
-    fn get_jacobian_dot_slice(&self, velocities: &Vec<V2>) -> Vec<(usize, V2)>;
+    fn get_jacobian_block(&self, state: &ObjectSetState) -> Vec<(usize, usize, f64)>;
+    fn get_jacobian_dot_block(&self, state: &ObjectSetState) -> Vec<(usize, usize, f64)>;
 }

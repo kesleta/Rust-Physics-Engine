@@ -1,24 +1,18 @@
 use std::ops::{Add, Mul};
 
-use crate::V2;
-
-use super::State;
+use super::{pose::Pose, State};
 
 #[derive(Clone, Copy, Debug)]
 pub struct ObjectState {
-    pub position: V2,
-    pub velocity: V2,
+    pub pose: Pose,
+    pub vel: Pose,
 }
 
 impl ObjectState {
-    pub fn new(position: V2, velocity: V2) -> Self {
-        Self { position, velocity }
-    }
-
-    pub fn zero() -> ObjectState {
+    pub fn new(vel: Pose, pose_dot: Pose) -> Self {
         Self {
-            position: V2::zero(),
-            velocity: V2::zero(),
+            pose: vel,
+            vel: pose_dot,
         }
     }
 }
@@ -27,8 +21,8 @@ impl Add for ObjectState {
     type Output = Self;
     fn add(self, rhs: Self) -> Self::Output {
         Self {
-            position: self.position + rhs.position,
-            velocity: self.velocity + rhs.velocity,
+            pose: self.pose + rhs.pose,
+            vel: self.vel + rhs.vel,
         }
     }
 }
@@ -38,8 +32,8 @@ impl Mul<f64> for ObjectState {
 
     fn mul(self, rhs: f64) -> Self::Output {
         Self {
-            position: self.position * rhs,
-            velocity: self.velocity * rhs,
+            pose: self.pose * rhs,
+            vel: self.vel * rhs,
         }
     }
 }

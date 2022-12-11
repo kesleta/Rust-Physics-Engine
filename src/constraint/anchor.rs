@@ -1,46 +1,41 @@
-use crate::{Scalar, V2};
+use std::f64::consts::PI;
+
+use crate::state::{object_set_state::ObjectSetState, pose::Pose};
 
 use super::Constraint;
 
 pub struct Anchor {
-    pub anchor_index: usize,
-    pub position: V2,
+    pub object_index: usize,
+    pub pose: Pose,
 }
 
 impl Anchor {
-    pub fn new(object_index: usize, position: V2) -> Self {
-        Self {
-            anchor_index: object_index,
-            position,
-        }
+    pub fn new(object_index: usize, pose: Pose) -> Self {
+        Self { object_index, pose }
     }
 }
 
+//I seperate constraint equation into components for clairty
 impl Constraint for Anchor {
-    fn constrain_position(&self, positions: &Vec<V2>) -> Scalar {
-        assert!(self.anchor_index < positions.len());
-        let pos = positions[self.anchor_index];
-        (pos - self.position).magnitude()
+    fn constrain_pose(&self, state: &ObjectSetState) -> f64 {
+        let object_pose = state.states[self.object_index].pose;
+        (object_pose.position.x - self.pose.position.x).abs()
+            + (object_pose.position.y - self.pose.position.y).abs()
     }
 
-    fn constrain_velocities(&self, velocities: &Vec<V2>) -> Scalar {
-        assert!(self.anchor_index < velocities.len());
-        let vel = velocities[self.anchor_index];
-        vel.magnitude()
+    fn constrain_vel(&self, state: &ObjectSetState) -> f64 {
+        let object_vel = state.states[self.object_index].vel;
+        (object_vel.position.x).abs() + (object_vel.position.y).abs()
     }
 
-    fn constrain_acceleration(&self, accelerations: &Vec<V2>) -> Scalar {
-        assert!(self.anchor_index < accelerations.len());
-        let acc = accelerations[self.anchor_index];
-        acc.magnitude()
+    fn get_jacobian_block(&self, state: &ObjectSetState) -> Vec<(usize, usize, f64)> {
+        vec![
+            (0, self.object_index * 3 + 0, 1.0),
+            (1, self.object_index * 3 + 1, 1.0),
+        ]
     }
 
-    fn get_jacobian_slice(&self, positions: &Vec<V2>) -> Vec<(usize, V2)> {
-        let pos = positions[self.anchor_index];
-        vec![(self.anchor_index, todo!())]
-    }
-
-    fn get_jacobian_dot_slice(&self, velocities: &Vec<V2>) -> Vec<(usize, V2)> {
-        vec![(self.anchor_index, todo!())]
+    fn get_jacobian_dot_block(&self, _state: &ObjectSetState) -> Vec<(usize, usize, f64)> {
+        vec![]
     }
 }

@@ -3,9 +3,7 @@ use std::{
     ops::{Add, Mul},
 };
 
-use crate::{Scalar, V2};
-
-use super::{object_state::ObjectState, State};
+use super::{object_state::ObjectState, pose::Pose, State};
 
 #[derive(Clone, Debug)]
 pub struct ObjectSetState {
@@ -17,12 +15,12 @@ impl ObjectSetState {
         Self { states }
     }
 
-    pub fn get_positions(&self) -> Vec<V2> {
-        self.states.iter().map(|s| s.position).collect()
+    pub fn get_positions(&self) -> Vec<Pose> {
+        self.states.iter().map(|s| s.pose).collect()
     }
 
-    pub fn get_velocities(&self) -> Vec<V2> {
-        self.states.iter().map(|s| s.velocity).collect()
+    pub fn get_velocities(&self) -> Vec<Pose> {
+        self.states.iter().map(|s| s.vel).collect()
     }
 }
 
@@ -49,10 +47,10 @@ impl Sum for ObjectSetState {
     }
 }
 
-impl Mul<Scalar> for ObjectSetState {
+impl Mul<f64> for ObjectSetState {
     type Output = Self;
 
-    fn mul(self, rhs: Scalar) -> Self::Output {
+    fn mul(self, rhs: f64) -> Self::Output {
         ObjectSetState {
             states: self.states.iter().map(|s| *s * rhs).collect(),
         }

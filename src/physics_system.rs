@@ -1,14 +1,12 @@
 use std::marker::PhantomData;
 
-use sprs::{CsMat, CsVec, TriMat};
-
 use crate::{
     constraint::{constraint_set::ConstraintSet, Constraint},
+    constraint_solver::{self, solve},
     force::{sum_force::SumForce, ForceGenerator},
     object::{object_set::ObjectSet, Object},
     ode_solver::OdeSolver,
-    state::{object_set_state::ObjectSetState, object_state::ObjectState},
-    Scalar, V2,
+    state::{object_set_state::ObjectSetState, object_state::ObjectState, pose::Pose},
 };
 
 pub struct PhysicsSystem<S: OdeSolver> {
@@ -40,8 +38,9 @@ impl<S: OdeSolver> PhysicsSystem<S> {
     pub fn update(&mut self, dt: f64) {
         let state = self.object_set.get_states();
         let masses = self.object_set.get_masses();
-        
-        let constraint_forces: Vec<V2> = vec![]; //TODO
+
+        let constraint_forces: Vec<Pose> = solve(&self);
+
         let new_state = S::solve(
             &state,
             |set_state| {
@@ -61,7 +60,7 @@ impl<S: OdeSolver> PhysicsSystem<S> {
         self.object_set.set_states(new_state);
     }
 
-    pub fn get_energy(&self) -> Scalar {
+    pub fn get_energy(&self) -> f64 {
         self.force_set.get_potential(&self.object_set.get_states()) + self.object_set.get_kinetic()
     }
 }
